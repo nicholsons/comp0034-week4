@@ -1,195 +1,131 @@
-# Introduction to interactivity in Dash
+# Testing Dash apps
 
-## So far
-You have been introduced to: 
+Contents:
 
-- the basic structure of a dash app 
-- adding styling using dash-bootsrap-components
-- adding static charts with Plotly Express
+- [Activity introduction](#activity-introduction)
+- [Setup](#setup)
+- [Unit testing callbacks with dash.Testing](#unit-testing-callbacks-with-dashtesting)
+- [End to end testing with Selenium](#end-to-end-testing-with-selenium)
 
-The code structure looks something like this (parts ommited to keep it short)
+## Activity introduction
 
-```python
-# Import the required libraries.
-import pandas as pd
-from dash import Dash, dcc, html
-import dash-bootstrap-components as dbc
-import plotly.express as px
+This activity will introduce you to testing a Dash app using pytest and Selenium webdriver. You will test the Dash app in the `src/apps/recycle_app` directory.
 
+The activity assumes you completed the setup instructions in README.md. If you have not, please do so before starting otherwise you are likely to experience issues with imports during testing.
 
-# Import the data set
-df = pd.read_csv(path_to_csv_file)
+The activity is based on the guidance on testing given in the [Dash documentation](https://dash.plotly.com/testing).
 
-# Create the Plotly figure 
-fig = px.bar(df, x="spend", y="date", color="place", title="Purchases by place")
+In COMP0035 you learned how to use pytest to create tests. This style of testing would be useful to test the functions in `recyclingchart.py` and `recyclingdata.py`. However, the structure
+of Dash (or any web app) is such that it would be difficult to create unit tests in the same way.
 
-# Create a Dash app
+A more useful approach for the Dash app would be to test components, or integration testing. That is, to run the Dash app and test that it can be used to complete the functions you defined in your user stories or use cases (in the COMP0035 coursework 2).
 
-app = Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP], meta_tags=[{"name": "viewport", "content": "width=device-width, initial-scale=1"},],)
+To do this you will use an additional library called Selenium. Selenium allows you to run tests automatically in the browser, that is you simulate the behaviour of a user carrying out specific actions in the browser and then use assertions to verify particular conditions or state.
 
-# Create the app layout
-app.layout = dbc.Container(children=[
-    html.H1('My heading'),
-    dcc.Graph(id='bar-purchases'
-        figure=fig)
-])
+Selenium can be used with a number of test libraries, we will use pytest since you used this in COMP0035, and it is recommended in the Dash documentation.
 
-# Run the web app server
-if __name__ == '__main__':
-    app.run_server(debug=True)
+**NOTE: Writing tests for your Dash app for coursework 1 is only required for groups**
 
-```
+## Setup
 
-You used the dash_html_components to define a static layout in the app.layout. 
+### Install the testing packages
 
+Enter `pip install pytest selenium pytest-cov dash[testing]` in a terminal/console within your venv.
 
-You also used the [Graph component](https://dash.plotly.com/dash-core-components/graph) from the dash_core_components library to generate figures. The figures themselves were created using Plotly Express or Plotly Graph Objects and we mostly used pandas dataframes for manipulating the data.
+## Download and install the correct version of Chromedriver for your computer
 
-## Introduction to this activity
+You will need to use the [Chrome browser for testing Dash](https://dash.plotly.com/testing), though Selenium supports a
+number of browsers.
 
-In this activity we are going to look at more [Dash core components](https://dash.plotly.com/dash-core-components) and the use of callbacks for achieving interaction.
+Check your version of Chrome in the Chrome settings/preferences 'About Chrome'.
 
-If you have not already, then fork or clone the [GitHub repository](), create a venv and install the libraries from requirements.txt.
+Go to [Chrome driver downloads](https://sites.google.com/chromium.org/driver/downloads) and select the version for your
+version Chrome.
 
-This example is based on a simplified version of the [Virus Forecaster](https://virusforecaster.herokuapp.com_ (without the forecast model or the deaths data).
+In the next window you then need to download the correct driver for your operating system.
 
-### Processing the data
-To avoid a large `dash.py` the code associated with reading and preparing the data has been extracted to a separate class called 'Data' which is defined in `data.py`.
+The [Selenium documentation](https://www.selenium.dev/documentation/en/webdriver/driver_requirements/) explains where to place it in Windows and how to add it to the path, and for macOS.
 
-Have a look at `data.py` in the data directory.
+My experience on a MacBook was that I had to complete the following steps:
 
-This creates a class with the pandas dataframes that we will use in generating the figures, `cases` with the daily totals of cases for a country, and `country_list` which is a list of the countries for included in the data set.
+- Download the driver
+- Try to open the driver from the download directory, this prompts you to change the security settings for the file (
+  System Settings | Security & Privacy | General and then click on 'Open Anyway').
+- Close the driver
+- Move the driver from downloads to `usr/local/bin`  (I use this location as it is already in PATH)
 
-Look at the class and functions and try to understand what they do.
+## End to end testing with Selenium
 
-The source data is saved in the CSSE_data folder to allow you to run the code without an internet connection. However this data is from August 2020, to get the latest data then replace the DATA_LOC value with the URL to the latest John Hopkins source data (the code is currently commented out in `data.py`).
+### Test code structure
 
-### Dash App layout and styling
-Have a look at `dash.py` and then run it to see the current app.
+Boilerplate code for creating a test is given in the Dash documentation.
 
-The app is styled using the dash_bootstrap_components LUX theme ([see list of themes](https://dash-bootstrap-components.opensource.faculty.ai/docs/themes/)).
+This was used when writing [test/test_recycle_app/test_recycle_app.py](/test/test_recycle_app/test_recycle_app.py)`. Open this file now before reading the rest of this document.
 
-Try out some of the other themes and choose one you like and apply it to the app.
+### Name the test
 
-### Create the page structure using Bootstrap rows and columns
-Hopefully you completed the bootstrap activities in week 2. If so you should be familiar with the grid layout that Bootstrap supports.
+In the documentation the test function name follows this pattern: test_{tcid}_{test title}.
 
-One of the ways you can define the overall structure with Bootstrap is to divide the page into rows and columns.
+The test case ID (tcid) is an abbreviation pattern of mmffddd => module + file + three digits.
 
-For our Covid app we are going to have a single row with two columns.
+You do not have to follow this pattern if you are following a different naming convention for your tests. As you should
+remember from COMP0035 it is a good idea to start with `test_` as many test runners will autodetect tests based on this
+naming pattern. The name of the test should also indicate what the test does.
 
-The first column will contain the country drop down menu and the summary statistics.
+I have used a slightly different 'tcid' using an abbreviation for the app plus 3 digits.
 
-The second column will be used to display the chart. The chart area will have two tabs, a different chart will be displayed on each tab.
+You should see that the first test is named `def test_rec001_h1textequals(dash_duo):`
 
-Modify the `app.layout` as follows:
+## Create the dash app
 
-```python
-app.layout = dbc.Container(fluid=True, children=[
-    html.Br(),
-    html.H1('Global Covid-19 daily cases'),
-    dbc.Row([
-        # Country input and summary statistics panel
-        dbc.Col(md=3, children=[
-            dbc.FormGroup([
-                html.H4("Select Country"),
-                dcc.Dropdown(id="country", options=[{"label": x, "value": x} for x in data.country_list], value="World")
-            ]),
-            html.Br(),
-            html.Div(id="output-panel")
-        ]),
-        # Figures
-        dbc.Col(md=9, children=[
-            dbc.Col(html.H4("Covid cases"), width={"size": 6, "offset": 3}),
-            dbc.Tabs(className="nav nav-pills", children=[
-                dbc.Tab(dcc.Graph(id="fig-total", figure=fig_total), label="Total cases"),
-                dbc.Tab(dcc.Graph(id="fig-active", figure=fig_active), label="Active cases")
-            ])
-        ])
-    ])
-])
-```
-Now stop and restart the app.
-
-You should see a 2 column layout with the charts accessed using tabs.
-
-While you can use the country selector drop down, nothing happens when you select a country.
-
-### Add a callback so that the statistics panel is displayed when a country is selected
-
-A callback function is a Python function that is automatically called by Dash whenever an input component's property changes.
-
-The basic structure of the callback is:
+The boilerplate code suggests that you define and create the app in every test case. This would lead to a lot of
+repetition and become difficult to maintain. Instead, create the app by using the `import_app` function which is in the
+application_runners module, this only works if the file that runs the dash app is
+called `app.py` ([see community post here](https://community.plotly.com/t/how-you-can-integration-test-your-app-by-dash-testing/25002)):
 
 ```python
-@app.callback(
-    Output(component_id='my-output', component_property='a_property'),
-    [Input(component_id='my-input', component_property='another_property')]
-)
-def update_output_div(input_value):
-    return 'Output: {}'.format(input_value)
+from dash.testing.application_runners import import_app
+
+
+def test_spa001_h1textequals(dash_duo):
+    app = import_app("apps.recycle_app.recycle_app")
 ```
 
-- By writing this decorator, we're telling Dash to call this function for us whenever the value of the "input" component (the text box) changes in order to update the children of the "output" component on the page (the HTML div).
-- You can use any name for the function that is wrapped by the @app.callback decorator. The convention is that the name describes the callback output(s).
-- You can use any name for the function arguments, but you must use the same names inside the callback function as you do in its definition, just like in a regular Python function. The arguments are positional: first the Input items and then any State items are given in the same order as in the decorator.
-- You must use the same id you gave a Dash component in the app.layout when referring to it as either an input or output of the @app.callback decorator.
-- The @app.callback decorator needs to be directly above the callback function declaration. If there is a blank line between the decorator and the function definition, the callback registration will not be successful.
-
-To create a callback we need to:
-
-- Define the Input: identify the component id (e.g. id of an html element) and component property that the user will interact with
-- Define the Outputs: identify the component id and property that will be updated after we make a change
-- Write a Python function using the @callback decorator. The function will be run when the Input has been selected
-
-To display the statistics panel when the country dropdown selection is changed we need to:
-
-- Input: If you look at the first column in our app layout you should see the form we created for the dropdown. The dropdown has an `id=country'` and the item that is selected from the list is the `value=` parameter.
-The Input functionality is a class provided in the dash.dependencies module so we will need the import `from dash.dependencies import Output, Input`.
-So, we can reference the country that is selected as `Input("country","value")`
-
-- Outputs: The last line of the first column in the app layout added a placeholder div: `html.Div(id="output-panel")`.
-We want to output a Bootstrap card with the statistics in and place it in this div, that is the card becomes the `children=` of the `html.Div(id="output-panel")`.
-So, we can reference the div as our output as `Output("output-panel","children")`.
-
-- Callback function
-The function will take the country name selected in the dropdown and process the data for that country.
-Once the data has been processed the stats can be generate by the result object.
-The stats generated by the `charts.get_stats()` method are then used to generate a bootstrap styled card with the statistical summary data.
-The HTML page is then updated by passing this 'card' to the div with the id of `"output-panel"`.
-
-The code to do this is as follows. Copy and paste this into the end of `dash.py` and then restart the app.
-
-The summary stats should change as the country is changed. The next step will be to change the charts when the stats are updated.
+The docstring for the `import_app` function explains how to reference your dash app:
 
 ```python
-@app.callback(Output("output-panel", "children"), [Input("country", "value")])
-def render_output_panel(country):
-    data.process_data(country)
-    charts = ChartData(data.df)
-    peak_day, num_max, total_cases_until_today, active_cases_today = charts.get_stats()
-    panel = html.Div([
-        html.H4(country, id="card_name"),
-        dbc.Card(body=True, className="bg-dark text-light", children=[
-            html.Br(),
-            html.H6("Total cases until today:", className="card-title"),
-            html.H3("{:,.0f}".format(total_cases_until_today), className="card-text text-light"),
-            html.Br(),
-            html.H6("Active cases today:", className="card-title"),
-            html.H3("{:,.0f}".format(active_cases_today), className="card-text text-light"),
-            html.Br(),
-            html.H6("Peak day:", className="card-title"),
-            html.H3(peak_day.strftime("%d-%m-%Y"), className="card-text text-light"),
-            html.H6("with {:,.0f} cases".format(num_max), className="card-title text-light" ),
-            html.Br()
-        ])
-    ])
-    return panel
+"""Import a dash application from a module. The import path is in dot
+    notation to the module. The variable named app will be returned.
+
+    :Example:
+
+        >>> app = import_app("my_app.app")
+
+    Will import the application in module `app` of the package `my_app`.
+
+    :param app_file: Path to the app (dot-separated).
+    :type app_file: str
+    :param application_name: The name of the dash application instance.
+    :raise: dash_tests.errors.NoAppFoundError
+    :return: App from module.
+    :rtype: dash.Dash
+    """
 ```
-### Update the charts when a country is selected
-Now it is over to you, see if you can add two further callbacks to dash.py:
 
-1. Add a plot_total_cases(country) callback that takes the same input as the stats panel and outputs to the chart component with the fig_total id.
-The function takes the country, processes the data for that country, creates a new result object and calls the appropriate method to generate the total cases figure.
+Further, you could create a fixture in `conftest.py` to create the app and then use in your test functions if you prefer:
 
-2. Repeat for the plot_active_cases(country) callback.
+```python
+from dash.testing.application_runners import import_app
+
+
+@pytest.fixture(scope="function")
+def run_recycle_app(dash_duo):
+    app = import_app("apps.recycle_app.recycle_app")
+    yield dash_duo.start_server(app)
+```
+
+## Unit testing callbacks with dash.Testing
+
+Code from the Dash testing tutorial has been recreated in [test/test_recycle_app/test_callbacks.py](/test/test_app/test_callbacks.py)
+
+TODO: Write this section of the tutorial!
