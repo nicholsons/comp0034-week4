@@ -112,18 +112,6 @@ The docstring for the `import_app` function explains how to reference your dash 
     """
 ```
 
-Further, you could create a fixture in `conftest.py` to create the app and then use in your test functions if you prefer:
-
-```python
-from dash.testing.application_runners import import_app
-
-
-@pytest.fixture(scope="function")
-def run_recycle_app(dash_duo):
-    app = import_app("apps.recycle_app.recycle_app")
-    yield dash_duo.start_server(app)
-```
-
 ## Unit testing callbacks with dash.Testing
 
 Code from the Dash testing tutorial has been recreated in [test/test_recycle_app/test_callbacks.py](/test/test_app/test_callbacks.py)
