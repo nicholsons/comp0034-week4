@@ -2,3 +2,8 @@ dash
 pandas
 dash-bootstrap-components
 plotly
+colorlover
+pytest 
+pytest-cov 
+selenium
+dash[testing]
