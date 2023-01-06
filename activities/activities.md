@@ -4,8 +4,9 @@ Contents:
 
 - [Activity introduction](#activity-introduction)
 - [Setup](#setup)
-- [Unit testing callbacks with dash.Testing](#unit-testing-callbacks-with-dashtesting)
 - [End to end testing with Selenium](#end-to-end-testing-with-selenium)
+- [Unit testing callbacks with dash.Testing](#unit-testing-callbacks-with-dashtesting)
+- [Create GitHub actions workflow](#create-a-github-actions-workflow-that-runs-the-selenium-browser-tests)
 
 ## Activity introduction
 
@@ -112,8 +113,121 @@ The docstring for the `import_app` function explains how to reference your dash 
     """
 ```
 
+Further, you could create a fixture in `conftest.py` to create the app and then use in your test functions if you prefer:
+
+```python
+from dash.testing.application_runners import import_app
+
+
+@pytest.fixture(scope="function")
+def run_recycle_app(dash_duo):
+    app = import_app("apps.recycle_app.recycle_dash_app")
+    yield dash_duo.start_server(app)
+```
+
+### Create and configure the webdriver
+
+You do not need to explicitly create and declare the Selenium webdriver. This is created for you using the Chrome driver as default. If you want to use a different driver e.g. Firefox, you will need to read
+the [Plotly Dash documentation](https://dash.plotly.com/testing) for how to do this.
+
+If you need to configure the Chrome driver (and you will need to do this if you want to run the tests in GitHub) then you can modify the Chrome Options by adding a function (not a fixture) in `conftest.py`, for example the following would run the driver in headless mode which you need for remote execution on GitHub.
+
+Comment out (i.e. add a `#` before) the headless option now so that you can see the tests running in a browser on your computer.
+
+```python
+from selenium.webdriver.chrome.options import Options
+
+
+def pytest_setup_options():
+    options = Options()
+    # Uncomment the following if testing on GitHub actions, the browser needs to run in headless mode
+    options.add_argument('--disable-gpu')
+    options.add_argument('--headless')
+    return options
+```
+
+## Waits
+
+Selenium webdriver loads the web app, however the tests could run before the page has finished rendering and a test may fail as a given element was not yet available. To avoid this you can
+use [waits](https://www.selenium.dev/documentation/webdriver/waits/), either to wait for a set period of time or to wait for a particular event on the page.
+
+In the first test we wait for the first `<h1>` element to be available:
+
+```python
+dash_duo.wait_for_element("h1", timeout=4)
+```
+
+You can also access the [implicit waits](https://www.selenium.dev/documentation/webdriver/waits/#implicit-wait) by using `dash_duo.driver` which exposes the methods from the selenium API. For
+example: `dash_duo.driver.implicitly_wait(5)`
+
+## Find an element and property to check
+
+In the first test, the nest step is to find the text value of the h1 heading like this:
+`h1_text = dash_duo.find_element("h1").text`.
+
+Finding an element, or all elements, can be done using tags, ids, classes.
+The [location strategies are explained in the documentation](https://www.selenium.dev/documentation/webdriver/elements/) along with examples of Python code.
+
+As well as finding an element, you can also interact with an element, for example fill in details of a form, click on a link or a button. Some of these are shown in the example tests in `test_recycle_app.py` and there are further examples in the [selenium documentation](https://www.selenium.dev/documentation/webdriver/elements/).
+
+## Write the assertion(s)
+
+We covered writing assertions in COMP0035. If you recall, pytest uses `assert` for most assertions (rather than different assertion types such as assert_equal, assert_contains etc.).
+
+For the first test we 'assert' that the text in the `<h1>` element includes the text 'Waste and recycling'. However, the bootstrap style that is applied to this element converts the text to uppercase, so the test would fail.
+
+Instead, a step has been added to compare the strings ignoring the case using the python function `.casefold()`. There are other techniques you could use such as `.upper()`, `.lower()`, or REGEX pattern matching.
+
+```python
+h1_text = dash_duo.find_element("h1").text
+assert h1_text.casefold() == 'Waste and recycling'.casefold()
+```
+
+## Run the tests
+
+Run the tests using the appropriate pytest run method for your IDE (covered in COMP0035) or from the terminal e.g.:
+
+```python -m pytest -v```
+
+# Add a test
+
+Try and add at least one more test to `test_recycle_app.py`.
+
 ## Unit testing callbacks with dash.Testing
 
 Code from the Dash testing tutorial has been recreated in [test/test_recycle_app/test_callbacks.py](/test/test_app/test_callbacks.py)
 
 TODO: Write this section of the tutorial!
+
+## Create a GitHub Actions workflow that runs the selenium browser tests
+
+The use of GitHub Actions for automatically running tests was covered in COMP0035. You could also apply this to run the Dash tests automatically.
+
+The GitHub Actions steps are not repeated in full here (see COMP0035 or use GitHub documentation).
+
+- Go to your GitHub repository and find the Actions tab
+- The Getting Started... screen provides an option to search, search and find 'python application' then select Configure on that option in the search results
+- A workflow definition in YAML is created. You will need to make a few changes:
+  - You may wish to change the workflow name
+  - Change the version of Python that is used to match the version you are using to develop
+  - You don't need to install ChromeDriver as the default environment in GitHub already installs this for you.
+  - Change the line of code that runs the pytest to `python -m pytest` and not simply `pytest`. This
+      is [explained here](https://docs.pytest.org/en/6.2.x/goodpractices.html#tests-outside-application-code).
+- Select 'Start commit' once you finish editing the workflow.
+- Go back to the Actions tab. The workflow is likely to be still running, once it finished click on it and expand the build steps to check there are no errors.
+
+Remember: the code to set the chromedriver options needs to be changed for GitHub Actions!
+
+```python
+from selenium.webdriver.chrome.options import Options
+
+
+def pytest_setup_options():
+    options = Options()
+    # Uncomment the following if testing on GitHub actions, the browser needs to run in headless mode
+    options.add_argument('--disable-gpu')
+    options.add_argument('--headless')
+    return options
+```
+
+## Create tests for the paralympics app

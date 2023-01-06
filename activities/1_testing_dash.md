@@ -131,16 +131,12 @@ def run_recycle_app(dash_duo):
 
 ### Create and configure the webdriver
 
-You do not need to explicitly create and declare the Selenium webdriver. This is created for you using the Chrome driver
-as default. If you want to use a different driver e.g. Firefox, you will need to read
+You do not need to explicitly create and declare the Selenium webdriver. This is created for you using the Chrome driver as default. If you want to use a different driver e.g. Firefox, you will need to read
 the [Plotly Dash documentation](https://dash.plotly.com/testing) for how to do this.
 
-If you need to configure the Chrome driver (and you will need to do this if you want to run the tests in GitHub) then
-you can modify the Chrome Options by adding a function (not a fixture) in `conftest.py`, for example the following would
-run the driver in headless mode which you need for remote execution on GitHub.
+If you need to configure the Chrome driver (and you will need to do this if you want to run the tests in GitHub) then you can modify the Chrome Options by adding a function (not a fixture) in `conftest.py`, for example the following would run the driver in headless mode which you need for remote execution on GitHub.
 
-Comment out (i.e. add a `#` before) the headless option now so that you can see the tests running in a browser on your
-computer.
+Comment out (i.e. add a `#` before) the headless option now so that you can see the tests running in a browser on your computer.
 
 ```python
 from selenium.webdriver.chrome.options import Options
