@@ -5,7 +5,6 @@ Contents:
 - [Activity introduction](#activity-introduction)
 - [Setup](#setup)
 - [End to end testing with Selenium](#end-to-end-testing-with-selenium)
-- [Unit testing callbacks with dash.Testing](#unit-testing-callbacks-with-dashtesting)
 - [Create GitHub actions workflow](#create-a-github-actions-workflow-that-runs-the-selenium-browser-tests)
 - [Create tests for the paralympics app](#create-tests-for-the-paralympics-app)
 
@@ -15,22 +14,21 @@ This activity will introduce you to testing a Dash app using pytest and Selenium
 
 The activity assumes you completed the setup instructions in README.md. If you have not, please do so before starting otherwise you are likely to experience issues with imports during testing.
 
-The activity is based on the guidance on testing given in the [Dash documentation](https://dash.plotly.com/testing).
-
-In COMP0035 you learned how to use pytest to create tests. This style of testing would be useful to test the functions in `recyclingchart.py` and `recyclingdata.py`. However, the structure
-of Dash (or any web app) is such that it would be difficult to create unit tests in the same way.
+In COMP0035 you learned how to use pytest to create tests. This style of testing would be useful to test the functions in `recyclingchart.py` and `recyclingdata.py`. However, the structure of Dash (or any web app) is such that it would be difficult to create unit tests in the same way.
 
 A more useful approach for the Dash app would be to test components, or integration testing. That is, to run the Dash app and test that it can be used to complete the functions you defined in your user stories or use cases (in the COMP0035 coursework 2).
 
-To do this you will use an additional library called Selenium. Selenium allows you to run tests automatically in the browser, that is you simulate the behaviour of a user carrying out specific actions in the browser and then use assertions to verify particular conditions or state.
+To do this you will use an additional library called Selenium (Selenium webdriver). Selenium allows you to run tests automatically in the browser, that is you simulate the behaviour of a user carrying out specific actions in the browser and then use assertions to verify particular conditions or state.
+
+Dash provides support for testing Dash on Chrome using Selenium. To do this also requires you to install [ChromeDriver](https://sites.google.com/chromium.org/driver/home?authuser=0) which allows Selenium to navigate and interact with webpages in the Chrome browser. This is installed separately from Selenium and guidance is given in the activities below.
 
 Selenium can be used with a number of test libraries, we will use pytest since you used this in COMP0035, and it is recommended in the Dash documentation.
 
 You should refer to the [Selenium documentation](https://www.selenium.dev/documentation/webdriver/) for the syntax [locating elements](https://www.selenium.dev/documentation/webdriver/elements/) on a webpage and [interacting with them](https://www.selenium.dev/documentation/webdriver/elements/interactions/).
 
-dash_duo provides some convenience functions, ie shortcuts to the selenium functions. These are [documented here](https://dash.plotly.com/testing#browser-apis).
+Dash testing's `dash_duo` provides some convenience functions, i.e. shortcuts to the Selenium functions. These are [documented here](https://dash.plotly.com/testing#browser-apis).
 
-**NOTE: Writing tests for your Dash app for coursework 1 is only required for groups**
+**NOTE: Coursework 1 Dash app testing is only required for groups**
 
 ## Setup
 
@@ -197,12 +195,6 @@ Run the tests using the appropriate pytest run method for your IDE (covered in C
 
 Try and add at least one more test to `test_recycle_app.py`.
 
-## Unit testing callbacks with dash.Testing
-
-Code from the Dash testing tutorial has been recreated in [test/test_recycle_app/test_callbacks.py](/test/test_app/test_callbacks.py)
-
-TODO: Write this section of the tutorial!
-
 ## Create a GitHub Actions workflow that runs the selenium browser tests
 
 The use of GitHub Actions for automatically running tests was covered in COMP0035. You could also apply this to run the Dash tests automatically.
@@ -297,10 +289,6 @@ WHEN the gold medals table is displayed
 THEN the text value of the table heading (<th>) in the first column should be 'Country'
 """
 ```
-
-Find out if it is possible to navigate to one of the locations on the map chart and access the hover information. You
-will need to research to see if this is possible. If this is possible then devise an appropriate test for the "where in
-the world..." chart.
 
 ## 5: Run the tests using GitHub Actions
 

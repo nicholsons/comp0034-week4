@@ -1,6 +1,6 @@
 from dash import html, dcc, Dash, dash_table, Input, Output
 import dash_bootstrap_components as dbc
-import create_charts as cc
+from paralympics_app import create_charts as cc
 
 fig_line_sports = cc.line_chart_sports()
 fig_sb_gender_winter = cc.stacked_bar_gender("Winter")
