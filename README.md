@@ -14,7 +14,7 @@ pip install --upgrade setuptools
 pip install --editable .
 ```
 
-Further info on [setup.py and packaging](https://setuptools.pypa.io/en/latest/userguide/quickstart.html) and [installing in development model](https://setuptools.pypa.io/en/latest/userguide/development_mode.html).
+Further info on [setup.py and packaging](https://setuptools.pypa.io/en/latest/userguide/quickstart.html) and [installing in development mode](https://setuptools.pypa.io/en/latest/userguide/development_mode.html).
 
 ## Activities
 
