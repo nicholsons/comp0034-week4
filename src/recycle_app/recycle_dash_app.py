@@ -33,6 +33,18 @@ app.layout = dbc.Container(
             "Turn London waste into an opportunity – by reducing waste, reusing and recycling more of it.",
             className="lead",
         ),
+        # Same as above but repeated inside a dbc.Row() and dbc.Col() so you can see the difference
+        dbc.Row(
+            dbc.Col(
+                children=[
+                    html.H2("How does your area compare?"),
+                    html.P(
+                        "Select an area to see how it compares to the average for England",
+                        className="lead",
+                    ),
+                ]
+            )
+        ),
         # Second row here
         dbc.Row(
             [

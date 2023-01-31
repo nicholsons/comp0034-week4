@@ -28,3 +28,12 @@ This week the activities build on the following apps:
 ## Week 3 solutions
 
 Possible solutions to the week 3 activities are in the [/src/recycle_app](/src/recycle_app/) and [/src/paralympics_app](/src/paralympics_app/) folders.
+
+
+To run the apps try:
+
+`python src/recycle_app/recycle_dash_app.py`
+
+and 
+
+`python src/paralympics_app/paralympics_dash_app.py`
