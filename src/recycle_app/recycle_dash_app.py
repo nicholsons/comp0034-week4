@@ -27,13 +27,13 @@ app.layout = dbc.Container(
     fluid=True,
     children=[
         html.Br(),
-        # First row here
+        # First row here, this does not use a dbc.Row(dbc.Col()) since the effect is the same without it
         html.H1("Waste and recycling"),
         html.P(
             "Turn London waste into an opportunity – by reducing waste, reusing and recycling more of it.",
             className="lead",
         ),
-        # Same as above but repeated inside a dbc.Row() and dbc.Col() so you can see the difference
+        # As above but using a dbc.Row(dcb.Col()) so you can see the syntax difference
         dbc.Row(
             dbc.Col(
                 children=[
